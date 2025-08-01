@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors"
 import db from "./utils/db.js";
 
+// import all routes
+import userRoutes from "./routes/user.routes.js"
+
 // configure envoirment variable
 dotenv.config();
 
@@ -25,16 +28,11 @@ app.get("/", (req, res) => {
     res.send("app is running succusfully!");
 })
 
-app.get("/myRoute", (req, res) => {
-    res.send({
-        succes: true,
-        code: 200,
-        body: "You have entered my route"
-    })
-})
-
 // connect db
 db();
+
+// user routes
+app.use("/api/v1/users/", userRoutes)
 
 app.listen(port, () => {
     console.log(`server is running at port ${port}`);
