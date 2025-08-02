@@ -3,8 +3,6 @@ import crypto from "crypto";
 
 const registerUser = async (req, res) => {
     try {
-        console.log("Registering user:", req.body);
-
         // Check if req.body exists
         if (!req.body) {
             return res.status(400).json({ message: "Request body is missing" });
@@ -36,14 +34,20 @@ const registerUser = async (req, res) => {
             })
         }
 
-        const token = await crypto.randomBytes(32).toString();
-        user.varificationToken = token
-        user.save()
+        const token = crypto.randomBytes(32).toString("hex")
+        user.verificationToken = token
+        const savedUser = await user.save()
+        console.log("User registered successfully:", savedUser);
+        
+        if (!savedUser) {
+            return res.status(500).json({
+                message: "Failed to save user"
+            });
+        }
 
         // send email
-        user.
 
-        // Continue with your registration logic here...
+
         res.status(201).json({ message: "User registered successfully" });
 
     } catch (error) {
