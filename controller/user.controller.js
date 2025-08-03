@@ -223,6 +223,12 @@ const verifyUser = async (req, res) => {
 
 const forgotPassword = async (req, res) => {
     try {
+        if (!req.body) {
+            return res.status(400).json({
+                message: "Request body is missing",
+                success: false
+            });
+        }
         const { email } = req.body;
         if (!email) {
             return res.status(400).json({
@@ -258,8 +264,8 @@ const forgotPassword = async (req, res) => {
             to: user.email,
             subject: 'Password Reset Request',
             text: `Please click the following link to reset your password:
-            ${process.env.BASE_URL}/api/v1/users/reset-password?resetToken=${resetToken}`,
-            html: `<h2>Password Reset</h2><p>Please click the link below to reset your password:</p><a href="${process.env.BASE_URL}/api/v1/users/reset-password?resetToken=${resetToken}">Reset Password</a>`,
+            ${process.env.BASE_URL}/api/v1/users/reset-password/${resetToken}`,
+            html: `<h2>Password Reset</h2><p>Please click the link below to reset your password:</p><a href="${process.env.BASE_URL}/api/v1/users/reset-password/${resetToken}">Reset Password</a>`,
         }
 
         transporter.sendMail(mailOptions, (error, info) => {
@@ -287,9 +293,56 @@ const forgotPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
     try {
-        
-    } catch (error) {
+        if (!req.body || !req.params.resetToken) {
+            return res.status(400).json({
+                message: "Request body is missing",
+                success: false
+            });
+        }
+        const resetToken = req.params.resetToken;
+        const { password, confirmPassword } = req.body;
 
+        if (!password || !confirmPassword) {
+            return res.status(400).json({
+                message: "All fields are required",
+                success: false
+            });
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({
+                message: "Passwords do not match",
+                success: false
+            })
+        }
+
+        const user = await User.findOne({
+            resetPasswordToken: resetToken,
+            resetPasswordExpires: { $gt: Date.now() }
+        })
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Invalid or expired reset token",
+                success: false
+            });
+        }
+
+        user.password = password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        res.status(200).json({
+            message: "Password reset successfully",
+            success: true
+        })
+    } catch (error) {
+        console.error("Error in resetPassword:", error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
     }
 }
 

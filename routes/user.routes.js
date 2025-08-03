@@ -8,8 +8,8 @@ const userRoutes = express.Router()
 userRoutes.post("/register", registerUser);
 userRoutes.post("/login", loginUser);
 userRoutes.get("/verify/:token", verifyUser);
-userRoutes.get("/forgot-password", forgotPassword);
-userRoutes.get("/reset-password/:resetToken", resetPassword);
+userRoutes.post("/forgot-password", forgotPassword);
+userRoutes.post("/reset-password/:resetToken", resetPassword);
 
 // protected routes
 userRoutes.get("/me/", isUserVarified, getUser);
