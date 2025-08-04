@@ -10,7 +10,7 @@ const isUserVarified = async (req, res, next) => {
         if (!token) {
             return res.status(401).json({
                 message: "Authentication failed",
-                succes: false
+                success: false
             })
         }
         
@@ -21,7 +21,7 @@ const isUserVarified = async (req, res, next) => {
     } catch (error) {
         return res.status(500).json({
             message: "Internal server error",
-            succes: false
+            success: false
         })
     }
 }

@@ -11,20 +11,27 @@ const registerUser = async (req, res) => {
     try {
         // Check if req.body exists
         if (!req.body) {
-            return res.status(400).json({ message: "Request body is missing" });
+            return res.status(400).json({
+                message: "Request body is missing",
+                success: false
+            });
         }
 
         const { name, email, password } = req.body;
 
         // Check if any required field is missing
         if (!name || !email || !password) {
-            return res.status(400).json({ message: "All fields are required" });
+            return res.status(400).json({
+                message: "All fields are required",
+                success: false
+            });
         }
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({
-                message: "The user already existed"
+                message: "The user already existed",
+                success: false
             });
         }
 
@@ -36,7 +43,8 @@ const registerUser = async (req, res) => {
 
         if (!user) {
             return res.status(400).json({
-                messege: "user not registered"
+                message: "user not registered",
+                success: false
             })
         }
 
@@ -57,9 +65,9 @@ const registerUser = async (req, res) => {
         const mailOptions = {
             from: '"Testing Team" <noreply@creativedesk.org.in>',
             to: user.email,
-            subject: 'Varification Mail',
-            text: `Please click the following like below to varify your email :
-            ${process.env.BASE_URL}/api/v1/users/varifyUser?token=${user.verificationToken}`,
+            subject: 'Verification Mail',
+            text: `Please click the following link below to verify your email :
+            ${process.env.BASE_URL}/api/v1/users/verify/${user.verificationToken}`,
             html: `<h2>Varification Email</h2><p>Please click the link below to varify your email:</p><a href="${process.env.BASE_URL}/api/v1/users/verify/${user.verificationToken}">Varify Email</a>`,
         }
 
@@ -106,7 +114,7 @@ const loginUser = async (req, res) => {
         if (!isPasswordMatch) {
             return res.status(400).json({
                 message: "Invalid Password",
-                success: true
+                success: false
             })
         }
 
@@ -207,7 +215,8 @@ const verifyUser = async (req, res) => {
 
     if (!user) {
         return res.status(400).json({
-            message: "Invalid Token"
+            message: "Invalid Token",
+            success: false
         })
     }
 
